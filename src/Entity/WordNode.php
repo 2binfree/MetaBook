@@ -101,4 +101,19 @@ class WordNode
         $this->word = $word;
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            "word" => $this->word,
+        ];
+    }
+
+    public function getType()
+    {
+        return "Word";
+    }
 }

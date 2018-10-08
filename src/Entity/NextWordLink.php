@@ -120,4 +120,17 @@ class NextWordLink
         $this->wordOrder = $wordOrder;
         return $this;
     }
+
+    public function toArray()
+    {
+        return [
+            "wordOrder" => $this->wordOrder,
+            "sentenceId" => $this->sentenceId,
+        ];
+    }
+
+    public function getType()
+    {
+        return "NEXT";
+    }
 }

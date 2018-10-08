@@ -57,7 +57,6 @@ services:
 
     App\Service\BookManager:
         arguments:
-            $manager: '@app.neo4j.entity_manager'
             $bookBaseDirectory: '%kernel.project_dir%/%env(BOOK_DIR)%'
 
     App\Service\DBTools:

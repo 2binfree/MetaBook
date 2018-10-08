@@ -140,4 +140,21 @@ class SentenceNode
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            "orderNumber" => $this->orderNumber,
+            "uid" => $this->uid,
+        ];
+    }
+
+    public function getType()
+    {
+        return "Sentence";
+    }
+
+
 }

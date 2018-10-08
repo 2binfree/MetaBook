@@ -6,14 +6,13 @@ use App\Entity\NextWordLink;
 use App\Entity\SentenceNode;
 use App\Entity\WordNode;
 use App\Repository\SentenceRepository;
-use GraphAware\Neo4j\OGM\EntityManager;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class BookManager
 {
     const SENTENCE_NOT_FOUND = -1;
 
-    /** @var EntityManager  */
+    /** @var DBTools  */
     private $manager;
 
     /** @var string */
@@ -24,10 +23,10 @@ class BookManager
 
     /**
      * DBTools constructor.
-     * @param EntityManager $manager
+     * @param DBTools $manager
      * @param $bookBaseDirectory
      */
-    public function __construct(EntityManager $manager, $bookBaseDirectory)
+    public function __construct(DBTools $manager, $bookBaseDirectory)
     {
         $this->manager = $manager;
         $this->bookBaseDirectory = $bookBaseDirectory;
@@ -93,14 +92,6 @@ class BookManager
                                        'Import sentence ' . $sentenceNumber . ' done in ' . $delay . '(' . memory_get_usage() . ')',
                                        '',
                                     ]);
-                                    if ($sentenceNumber % 20 === 0) {
-                                        $this->manager->flush();
-                                        $this->manager->clear();
-                                        $output->writeln([
-                                           'Flushing ...',
-                                           '',
-                                        ]);
-                                    }
                                     $sentence = [];
                                     break;
                                 default:
@@ -117,7 +108,7 @@ class BookManager
 
     /**
      * @param string $bookName
-     * @param SentenceNode|null $prevSentenceNode
+     * @param int|null $prevSentenceNodeId
      * @param array $sentence
      * @param int $sentenceNumber
      * @param float $delay
@@ -126,48 +117,39 @@ class BookManager
      */
     public function addSentence(
         string $bookName,
-        SentenceNode $prevSentenceNode = null,
+        int $prevSentenceNodeId = null,
         array $sentence,
         int $sentenceNumber,
         float &$delay
     )
     {
         $start = microtime(true);
-        $currentWords = [];
         $wordOrder = 1;
         $sentenceNode = new SentenceNode($bookName);
         $sentenceNode->setOrderNumber($sentenceNumber);
-        if (!is_null($prevSentenceNode)) {
-            $sentenceNode->setPrevSentence($prevSentenceNode);
-            $prevSentenceNode->setNextSentence($sentenceNode);
+        $sentenceNodeId = $this->manager->createNode($sentenceNode);
+        if (!is_null($prevSentenceNodeId)) {
+            $this->manager->createLink("Word", $prevSentenceNodeId, "Word", $sentenceNodeId, "NEXT_SENTENCE");
         }
         $firstWord = array_shift($sentence);
-        $firstWordNode = $this->getWordNode($firstWord);
-        $firstWordNode->getSentences()->add($sentenceNode);
-        $this->manager->persist($sentenceNode);
-        $this->manager->persist($firstWordNode);
+        $firstWordNodeId = $this->getWordNode($firstWord);
+        $this->manager->createLink("Sentence", $sentenceNodeId, "Word", $firstWordNodeId, "FIRST_WORD");
         /** @var WordNode $prevWordNode */
-        $prevWordNode = null;
+        $prevWordNodeId = null;
         foreach ($sentence as $word)
         {
             $nextWordLink = new NextWordLink();
             $nextWordLink->setWordOrder($wordOrder++);
-            $wordNode = $this->getWordNode($word);
-            if (is_null($prevWordNode)) {
-                $nextWordLink->setFromWord($firstWordNode);
-                $firstWordNode->getNextWords()->add($nextWordLink);
-            } else {
-                $nextWordLink->setFromWord($prevWordNode);
-                $prevWordNode->getNextWords()->add($nextWordLink);
-            }
-            $prevWordNode = $wordNode;
-            $nextWordLink->setToWord($wordNode);
-            $wordNode->getPrevWords()->add($nextWordLink);
             $nextWordLink->setSentenceId($sentenceNode->getUid());
-            $this->manager->persist($wordNode);
-            $this->manager->persist($nextWordLink);
-            unset($wordNode);
-            unset($nextWordLink);
+            $wordNodeId = $this->getWordNode($word);
+            if (is_null($prevWordNodeId)) {
+                $this->manager->createLink("Word", $firstWordNodeId, "Word", $wordNodeId, "NEXT", $nextWordLink);
+            } else {
+                $this->manager->createLink("Word", $prevWordNodeId, "Word", $wordNodeId, "NEXT", $nextWordLink);
+            }
+            $prevWordNodeId = $wordNodeId;
+//            $nextWordLink->setToWord($wordNode);
+//            $wordNode->getPrevWords()->add($nextWordLink);
         }
         $delay = round(microtime(true) - $start, 4);
         return $sentenceNode;
@@ -175,20 +157,22 @@ class BookManager
 
     /**
      * @param string $word
-     * @return WordNode
+     * @return int
+     * @throws \Exception
      */
     public function getWordNode(string $word)
     {
         if (isset($this->currentWords[$word])) {
             return $this->currentWords[$word];
         }
-        $wordNode = $this->manager->getRepository(WordNode::class)->findOneBy(["word" => $word]);
-        if (is_null($wordNode)) {
-            $wordNode = new wordNode();
+        $wordNodeId = $this->manager->getNodeByField("Word", "word", $word);
+        if (is_null($wordNodeId)) {
+            $wordNode = new WordNode();
             $wordNode->setWord($word);
+            $wordNodeId = $this->manager->createNode($wordNode);
         }
-        $this->currentWords[$word] = $wordNode;
-        return $wordNode;
+        $this->currentWords[$word] = $wordNodeId;
+        return $wordNodeId;
     }
 
     /**
