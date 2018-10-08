@@ -1,0 +1,12 @@
+neo4j:
+    connections:
+        default:
+            scheme: "http"
+            host: "127.0.0.1"
+            port: 7474
+            username: "neo4j"
+            password: "neo4j"
+    entity_managers:
+        default:
+            client: default
+            cache_dir: "%kernel.cache_dir%/neo4j" # defaults to system cache
