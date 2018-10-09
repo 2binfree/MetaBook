@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\BookManager;
+use App\Service\ImportManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,16 +16,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ImportBookCommand extends Command
 {
-    /** @var BookManager  */
-    private $bManager;
+    /** @var ImportManager  */
+    private $iManager;
 
     /**
      * ImportBookCommand constructor.
-     * @param BookManager $bManager
+     * @param ImportManager $iManager
      */
-    public function __construct(BookManager $bManager)
+    public function __construct(ImportManager $iManager)
     {
-        $this->bManager = $bManager;
+        $this->iManager = $iManager;
         parent::__construct();
     }
 
@@ -35,7 +36,8 @@ class ImportBookCommand extends Command
             ->setDescription('Import une new book')
             ->setHelp('Use this command to import a new book into BDD')
             ->addArgument('bookName', InputArgument::REQUIRED, 'The name of the book')
-            ->addOption("reset", "r", null, "Reset BDD before import");
+            ->addOption("reset", "r", null, "Reset BDD before import")
+            ->addOption("detail", "d", null, "Show detailed information during importation");
     }
 
     /**
@@ -58,7 +60,12 @@ class ImportBookCommand extends Command
             'Starting book import : ' . $bookName,
             '',
         ]);
-        $result = $this->bManager->import($bookName, $output);
+        $result = $this->iManager->import($bookName, $output, $input->getOption('detail'));
+        $output->writeln([
+            '',
+            "Import done in " . $result["time"] . " s, " . $result["sentences"] . ' sentences found',
+            '',
+        ]);
     }
 
     /**
@@ -69,7 +76,7 @@ class ImportBookCommand extends Command
     {
         $command = $this->getApplication()->find('app:bdd:reset');
         $greetInput = new ArrayInput([]);
-        $returnCode = $command->run($greetInput, $output);
+        $command->run($greetInput, $output);
     }
 
 }

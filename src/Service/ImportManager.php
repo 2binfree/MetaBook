@@ -6,9 +6,10 @@ use App\Entity\NextWordLink;
 use App\Entity\SentenceNode;
 use App\Entity\WordNode;
 use App\Repository\SentenceRepository;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class BookManager
+class ImportManager
 {
     const SENTENCE_NOT_FOUND = -1;
 
@@ -44,18 +45,26 @@ class BookManager
     /**
      * @param string $bookName
      * @param OutputInterface $output
-     * @return bool
+     * @return array
      * @throws \Exception
      */
-    public function import(string $bookName, OutputInterface $output)
+    public function import(string $bookName, OutputInterface $output, $verbose = false)
     {
         $book = new \SplFileObject($this->bookBaseDirectory . '/' . $bookName . ".txt");
-        $prevSentenceNode = null;
+        $book->seek(PHP_INT_MAX);
+        $lines = $book->key() + 1;
+        $book->seek(0);
+        $progress = 0;
+        $progressBar = new ProgressBar($output, $lines);
+        $progressBar->setFormat('debug');
+        $prevSentenceNodeId = null;
         $sentenceNumber = 0;
         $delay = 0;
+        $totalDelay = microtime(true);
         while (!$book->eof()) {
             $sentence = [];
             foreach ($book as $line){
+                $progress++;
                 $line =  str_replace(["\r", "\n"], '', $line);
                 if (!empty($line)) {
                     $words = explode(" ", $line);
@@ -87,11 +96,15 @@ class BookManager
                                     $sentence[] = substr($word, 0, -1);
                                     $sentence[] = substr($word, -1);
                                     $sentenceNumber++;
-                                    $prevSentenceNode = $this->addSentence($bookName, $prevSentenceNode, $sentence, $sentenceNumber, $delay);
-                                    $output->writeln([
-                                       'Import sentence ' . $sentenceNumber . ' done in ' . $delay . '(' . memory_get_usage() . ')',
-                                       '',
-                                    ]);
+                                    $prevSentenceNodeId = $this->addSentence($bookName, $prevSentenceNodeId, $sentence, $sentenceNumber, $delay);
+                                    if (true === $verbose) {
+                                        $output->writeln([
+                                            'Import sentence ' . $sentenceNumber . ' done in ' . $delay . '(' . memory_get_usage() . ')',
+                                        ]);
+                                    } else {
+                                        $progressBar->setProgress($progress);
+                                        $progressBar->display();
+                                    }
                                     $sentence = [];
                                     break;
                                 default:
@@ -103,7 +116,11 @@ class BookManager
                 }
             }
         }
-        return true;
+        $progressBar->finish();
+        return [
+            "time" => round(microtime(true) - $totalDelay, 2),
+            "sentences" => $sentenceNumber,
+        ];
     }
 
     /**
@@ -148,11 +165,9 @@ class BookManager
                 $this->manager->createLink("Word", $prevWordNodeId, "Word", $wordNodeId, "NEXT", $nextWordLink);
             }
             $prevWordNodeId = $wordNodeId;
-//            $nextWordLink->setToWord($wordNode);
-//            $wordNode->getPrevWords()->add($nextWordLink);
         }
         $delay = round(microtime(true) - $start, 4);
-        return $sentenceNode;
+        return $sentenceNodeId;
     }
 
     /**

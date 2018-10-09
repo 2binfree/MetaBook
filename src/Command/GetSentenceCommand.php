@@ -9,7 +9,7 @@
 
 namespace App\Command;
 
-use App\Service\BookManager;
+use App\Service\ImportManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,16 +21,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class GetSentenceCommand extends Command
 {
-    /** @var BookManager  */
-    private $bManager;
+    /** @var ImportManager  */
+    private $iManager;
 
     /**
      * ImportBookCommand constructor.
-     * @param BookManager $bManager
+     * @param ImportManager $iManager
      */
-    public function __construct(BookManager $bManager)
+    public function __construct(ImportManager $iManager)
     {
-        $this->bManager = $bManager;
+        $this->iManager = $iManager;
         parent::__construct();
     }
 
@@ -58,7 +58,7 @@ class GetSentenceCommand extends Command
             '================',
             '',
         ]);
-        $result = $this->bManager->getSentence($sentenceNumber);
+        $result = $this->iManager->getSentence($sentenceNumber);
         if (empty($result)) {
             $output->writeln([
                'Sentence not found',
