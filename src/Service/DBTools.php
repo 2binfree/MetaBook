@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Service;
-
-use GraphAware\Neo4j\OGM\EntityManager;
+use GraphAware\Common\Result\Result;
+use GraphAware\Neo4j\Client\Client;
 
 /**
  * Class DBTools
@@ -10,15 +10,16 @@ use GraphAware\Neo4j\OGM\EntityManager;
  */
 class DBTools
 {
-    private $manager;
+    /** @var Client  */
+    private $client;
 
     /**
      * DBTools constructor.
-     * @param EntityManager $manager
+     * @param Client $client
      */
-    public function __construct(EntityManager $manager)
+    public function __construct(Client $client)
     {
-        $this->manager = $manager;
+        $this->client = $client;
     }
 
     /**
@@ -26,12 +27,9 @@ class DBTools
      */
     public function reset()
     {
-        $query = $this->manager->createQuery("match (n) optional match (n)-[r]-() delete n,r");
-        $query->execute();
-        $query = $this->manager->createQuery("CREATE CONSTRAINT ON (w:WordNode) ASSERT w.word IS UNIQUE");
-        $query->execute();
-        $query = $this->manager->createQuery("CREATE CONSTRAINT ON (s:Sentence) ASSERT s.uid IS UNIQUE");
-        $query->execute();
+        $this->client->run("match (n) optional match (n)-[r]-() delete n,r");
+        $this->client->run("CREATE CONSTRAINT ON (w:WordNode) ASSERT w.word IS UNIQUE");
+        $this->client->run("CREATE CONSTRAINT ON (s:Sentence) ASSERT s.uid IS UNIQUE");
     }
 
     /**
@@ -43,8 +41,7 @@ class DBTools
     {
         $type = $object->getType();
         $strQuery = "CREATE (n:$type " . $this->createPropertiesSet($object) . ") return ID(n) as id";
-        $query = $this->manager->createQuery($strQuery);
-        $result = $query->execute();
+        $result = $this->client->run($strQuery);
         if (empty($result)) {
             return null;
         } else {
@@ -71,8 +68,7 @@ class DBTools
             CREATE (n1)-[r:$linkType $set]->(n2)
             RETURN type(r)  
         ";
-        $query = $this->manager->createQuery($strQuery);
-        $result = $query->execute();
+        $result = $this->client->run($strQuery);
         return $result;
     }
 
@@ -80,7 +76,7 @@ class DBTools
      * @param string $type
      * @param string $field
      * @param string|int $value
-     * @return \GraphAware\Neo4j\OGM\Query
+     * @return Result|null
      * @throws \Exception
      */
     public function getNodeByField(string $type, string $field, $value)
@@ -95,8 +91,7 @@ class DBTools
             WHERE n.$field = $search
             RETURN ID(n) as id
         ";
-        $query = $this->manager->createQuery($strQuery);
-        $result = $query->execute();
+        $result = $this->client->run($strQuery);
         if (empty($result)) {
             return null;
         }

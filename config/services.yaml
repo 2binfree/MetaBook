@@ -47,14 +47,6 @@ services:
         # pass the old service as an argument
         arguments: ['@neo4j.connection_manager']
 
-    app.neo4j.entity_manager:
-        decorates: neo4j.entity_manager
-        class: GraphAware\Neo4j\OGM\EntityManager
-        public: true
-        arguments:
-            $databaseDriver: '@neo4j.client'
-            $cacheDirectory: '%kernel.project_dir%/OGMCache'
-
     App\Service\ImportManager:
         arguments:
             $bookBaseDirectory: '%kernel.project_dir%/%env(BOOK_DIR)%'

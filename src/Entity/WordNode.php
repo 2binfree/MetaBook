@@ -2,34 +2,30 @@
 
 namespace App\Entity;
 
+use ToBinFree\Hydrator\Hydrator;
 use Doctrine\Common\Collections\Collection as CollectionInterface;
-use GraphAware\Neo4j\OGM\Annotations as OGM;
-use GraphAware\Neo4j\OGM\Common\Collection;
-
-;
+use Doctrine\Common\Collections\ArrayCollection as Collection;
 
 /**
  * Class WordNode
  * @package App\Entity
- * @OGM\Node(label="Word")
  */
 class WordNode
 {
+    use Hydrator;
+
     /**
-     * @OGM\Relationship(relationshipEntity="NextWordLink", type="NEXT", collection=true, direction="OUTGOING", mappedBy="fromWord")
-     * @var Collection
+     * @var CollectionInterface
      */
     private $nextWords;
 
     /**
-     * @OGM\Relationship(relationshipEntity="NextWordLink", type="NEXT", collection=true, direction="INCOMING", mappedBy="toWord")
-     * @var Collection
+     * @var CollectionInterface
      */
     private $prevWords;
 
     /**
-     * @OGM\Relationship(targetEntity="SentenceNode", type="FIRST_WORD", collection=true, direction="INCOMING", mappedBy="startWord")
-     * @var Collection
+     * @var CollectionInterface
      */
     private $sentences;
 

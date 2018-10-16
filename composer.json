@@ -5,12 +5,12 @@
         "php": "^7.1.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "graphaware/neo4j-php-ogm": "^1.0@RC",
         "neo4j/neo4j-bundle": "^0.4.1",
         "symfony/console": "^4.1",
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "^4.1",
-        "symfony/yaml": "^4.1"
+        "symfony/yaml": "^4.1",
+        "tobinfree/hydrator": "@dev"
     },
     "require-dev": {
         "symfony/dotenv": "^4.1",
