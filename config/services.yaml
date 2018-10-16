@@ -53,4 +53,4 @@ services:
 
     App\Service\DBTools:
         arguments:
-            $manager: '@app.neo4j.entity_manager'
+            $client: '@app.neo4j.client'

@@ -6,7 +6,4 @@ neo4j:
             port: 7474
             username: "neo4j"
             password: "neo4j"
-    entity_managers:
-        default:
-            client: default
-            cache_dir: "%kernel.cache_dir%/neo4j" # defaults to system cache
+

@@ -45,6 +45,7 @@ class ImportManager
     /**
      * @param string $bookName
      * @param OutputInterface $output
+     * @param bool $verbose
      * @return array
      * @throws \Exception
      */

@@ -30,13 +30,11 @@ class WordNode
     private $sentences;
 
     /**
-     * @OGM\GraphId()
      * @var int
      */
     private $id;
 
     /**
-     * @OGM\Property(type="string")
      * @var string
      */
     private $word;

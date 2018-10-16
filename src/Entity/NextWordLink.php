@@ -1,43 +1,38 @@
 <?php
 
 namespace App\Entity;
-
-use GraphAware\Neo4j\OGM\Annotations as OGM;
+use ToBinFree\Hydrator\Hydrator;
 
 /**
  * Class NextWordLink
  * @package App\Entity
- * @OGM\RelationshipEntity(type="NEXT")
  */
 class NextWordLink
 {
+    use Hydrator;
+
     /**
-     * @OGM\GraphId()
      * @var int
      */
     private $id;
 
     /**
-     * @OGM\StartNode(targetEntity="WordNode")
      * @var WordNode
      */
     private $fromWord;
 
     /**
-     * @OGM\EndNode(targetEntity="WordNode")
      * @var WordNode
      */
     private $toWord;
 
     /**
-     * @OGM\Property(type="string")
      * @var string
      */
     private $sentenceId;
 
     /**
      * @var int
-     * @OGM\Property(type="int")
      */
     private $wordOrder;
 

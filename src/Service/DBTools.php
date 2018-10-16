@@ -41,11 +41,13 @@ class DBTools
     {
         $type = $object->getType();
         $strQuery = "CREATE (n:$type " . $this->createPropertiesSet($object) . ") return ID(n) as id";
+        /** @var \GraphAware\Neo4j\Client\Formatter\Result $result */
         $result = $this->client->run($strQuery);
         if (empty($result)) {
             return null;
         } else {
-            return $result[0]["id"];
+            $record = $result->getRecord();
+            return $record->get("id");
         }
     }
 
@@ -56,7 +58,6 @@ class DBTools
      * @param int $toId
      * @param string $linkType
      * @param null $linkObject
-     * @return array|mixed
      * @throws \Exception
      */
     public function createLink(string $fromLabel, int $fromId, string $toLabel, int $toId, string $linkType, $linkObject = null)
@@ -68,8 +69,8 @@ class DBTools
             CREATE (n1)-[r:$linkType $set]->(n2)
             RETURN type(r)  
         ";
+        /** @var \GraphAware\Neo4j\Client\Formatter\Result $result */
         $result = $this->client->run($strQuery);
-        return $result;
     }
 
     /**
@@ -91,11 +92,12 @@ class DBTools
             WHERE n.$field = $search
             RETURN ID(n) as id
         ";
+        /** @var \GraphAware\Neo4j\Client\Formatter\Result $result */
         $result = $this->client->run($strQuery);
-        if (empty($result)) {
+        if (!$result->hasRecord()) {
             return null;
         }
-        return $result[0]["id"];
+        return $result->getRecord()->get("id");
     }
 
     /**
