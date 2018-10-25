@@ -8,9 +8,11 @@ use ToBinFree\Hydrator\Hydrator;
  * Class Sentence
  * @package App\Entity
  */
-class SentenceNode
+class SentenceNode implements EntityInterface
 {
     use Hydrator;
+
+    const TYPE = "Sentence";
 
     /**
      * @var WordNode
@@ -34,11 +36,13 @@ class SentenceNode
 
     /**
      * @var string
+     * @DataProperty
      */
     private $uid;
 
     /**
      * @var int
+     * @DataProperty
      */
     private $orderNumber;
 
@@ -66,9 +70,9 @@ class SentenceNode
     }
 
     /**
-     * @return int
+     * @return null|int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -136,18 +140,10 @@ class SentenceNode
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function toArray()
+    public function getType(): string
     {
-        return [
-            "orderNumber" => $this->orderNumber,
-            "uid" => $this->uid,
-        ];
-    }
-
-    public function getType()
-    {
-        return "Sentence";
+        return self::TYPE;
     }
 }

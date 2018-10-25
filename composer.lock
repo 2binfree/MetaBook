@@ -2262,12 +2262,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/2binfree/Hydrator.git",
-                "reference": "599154e4b331181e9fb7932dfff8c161df253a21"
+                "reference": "b3d2d661427a9b84cc27bf1e042479b31d0aa2ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/2binfree/Hydrator/zipball/599154e4b331181e9fb7932dfff8c161df253a21",
-                "reference": "599154e4b331181e9fb7932dfff8c161df253a21",
+                "url": "https://api.github.com/repos/2binfree/Hydrator/zipball/b3d2d661427a9b84cc27bf1e042479b31d0aa2ff",
+                "reference": "b3d2d661427a9b84cc27bf1e042479b31d0aa2ff",
                 "shasum": ""
             },
             "require": {
@@ -2293,7 +2293,7 @@
                 }
             ],
             "description": "Simple hydration mechanism via traits",
-            "time": "2018-10-16T11:29:32+00:00"
+            "time": "2018-10-25T09:55:21+00:00"
         },
         {
             "name": "twig/twig",

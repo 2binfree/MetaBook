@@ -10,9 +10,11 @@ use Doctrine\Common\Collections\ArrayCollection as Collection;
  * Class WordNode
  * @package App\Entity
  */
-class WordNode
+class WordNode implements EntityInterface
 {
     use Hydrator;
+
+    const TYPE = "Word";
 
     /**
      * @var CollectionInterface
@@ -36,6 +38,7 @@ class WordNode
 
     /**
      * @var string
+     * @DataProperty
      */
     private $word;
 
@@ -73,7 +76,7 @@ class WordNode
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -97,17 +100,10 @@ class WordNode
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function toArray()
+    public function getType(): string
     {
-        return [
-            "word" => $this->word,
-        ];
-    }
-
-    public function getType()
-    {
-        return "Word";
+        return self::TYPE;
     }
 }

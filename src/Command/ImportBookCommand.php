@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Service\BookManager;
 use App\Service\ImportManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;

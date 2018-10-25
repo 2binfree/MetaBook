@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Service;
-use GraphAware\Common\Result\Result;
+use App\Entity\EntityInterface;
 use GraphAware\Neo4j\Client\Client;
+use GraphAware\Neo4j\Client\Formatter\Result;
 
 /**
  * Class DBTools
@@ -33,11 +34,11 @@ class DBTools
     }
 
     /**
-     * @param $object
-     * @return array|mixed
+     * @param EntityInterface $object
+     * @return null|int
      * @throws \Exception
      */
-    public function createNode($object = null)
+    public function createNode(EntityInterface $object = null):?int
     {
         $type = $object->getType();
         $strQuery = "CREATE (n:$type " . $this->createPropertiesSet($object) . ") return ID(n) as id";
@@ -69,18 +70,18 @@ class DBTools
             CREATE (n1)-[r:$linkType $set]->(n2)
             RETURN type(r)  
         ";
-        /** @var \GraphAware\Neo4j\Client\Formatter\Result $result */
-        $result = $this->client->run($strQuery);
+        /** @var Result $result */
+        $this->client->run($strQuery);
     }
 
     /**
      * @param string $type
      * @param string $field
      * @param string|int $value
-     * @return Result|null
+     * @return null|int
      * @throws \Exception
      */
-    public function getNodeByField(string $type, string $field, $value)
+    public function getNodeByField(string $type, string $field, $value):?int
     {
         if (is_numeric($value)){
             $search = $value;
@@ -92,7 +93,7 @@ class DBTools
             WHERE n.$field = $search
             RETURN ID(n) as id
         ";
-        /** @var \GraphAware\Neo4j\Client\Formatter\Result $result */
+        /** @var Result $result */
         $result = $this->client->run($strQuery);
         if (!$result->hasRecord()) {
             return null;
@@ -101,14 +102,14 @@ class DBTools
     }
 
     /**
-     * @param $object
-     * @return bool|string
+     * @param null|EntityInterface $object
+     * @return string
      */
-    private function createPropertiesSet($object)
+    private function createPropertiesSet(?EntityInterface $object)
     {
         $set = '';
         if (!is_null($object)) {
-            $properties = $object->toArray();
+            $properties = $object->toArray(true);
             $set = '{ ';
             foreach ($properties as $field => $value) {
                 if (is_numeric($value)) {

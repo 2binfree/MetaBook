@@ -7,9 +7,11 @@ use ToBinFree\Hydrator\Hydrator;
  * Class NextWordLink
  * @package App\Entity
  */
-class NextWordLink
+class NextWordLink implements EntityInterface
 {
     use Hydrator;
+
+    const TYPE = "NEXT";
 
     /**
      * @var int
@@ -28,18 +30,20 @@ class NextWordLink
 
     /**
      * @var string
+     * @DataProperty
      */
     private $sentenceId;
 
     /**
      * @var int
+     * @DataProperty
      */
     private $wordOrder;
 
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -116,16 +120,11 @@ class NextWordLink
         return $this;
     }
 
-    public function toArray()
+    /**
+     * @return string
+     */
+    public function getType(): string
     {
-        return [
-            "wordOrder" => $this->wordOrder,
-            "sentenceId" => $this->sentenceId,
-        ];
-    }
-
-    public function getType()
-    {
-        return "NEXT";
+        return self::TYPE;
     }
 }

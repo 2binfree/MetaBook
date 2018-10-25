@@ -67,6 +67,7 @@ class ImportManager
             foreach ($book as $line){
                 $progress++;
                 $line =  str_replace(["\r", "\n"], '', $line);
+                $line =  str_replace('"', '`', $line);
                 if (!empty($line)) {
                     $words = explode(" ", $line);
                     while (!empty($words)) {
